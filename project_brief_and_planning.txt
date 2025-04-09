@@ -1,0 +1,10 @@
+Consider the following double-well potential model for chemical reactions,
+V(x) = 1/4 bx^4 - 1/2 ax^2		(4)
+where a and b are positive constants.
+(a) In the reactant well, we can approximate the potential as:
+V_r(x) ~ V_r(x_0) + 1/2 mw_0^2(x-x_0)^2		(5)
+Find x_0 and w_0 for the potential given in Eq (4). m is the mass of the particle that is crossing the barrier.
+(b) In classical transition state theory, the rate of reaction is given by
+k^{TST} = w_0/(2pi)e^{-bV_cl}		(6)
+where V_cl is the difference in energy between the bottom of the reactant well and the top of the barrier. Find an analytic expression for the k^{TST} for the potential in Eq. (4) in terms of a, b, m, and T.
+(c)

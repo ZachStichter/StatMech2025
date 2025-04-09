@@ -174,3 +174,4 @@ cython_debug/
 .pypirc
 
 .vs
+/Environment for StatMech 2025

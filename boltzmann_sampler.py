@@ -6,17 +6,20 @@ This is a standard normal distribution with width sqrt(1/(m\beta))
 import numpy as np
 import constants
 
-def sample_maxwell_boltzmann_distribution():
+def sample_maxwell_boltzmann_distribution(std_dev:float=None):
     '''
     Samples a velocity from the Maxwell-Boltzmann Distribution at some temperature T and some mass m.
 
     Args:
-        None
+        std_dev: the width of the sampling distribution. Defaults to None, which invokes a manual calculation (SLOW).
 
     Returns:
         A single float velocity sampled from the probabilistic distribution.
     '''
-    return abs(np.random.normal(0, np.sqrt(constants.k_b*constants.T/constants.m)))
+    if std_dev == None:
+        std_dev = np.sqrt(constants.k_b*constants.T/constants.m)
+    return abs(np.random.normal(0,std_dev))
+
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt # gimme those plotting tools

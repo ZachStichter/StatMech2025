@@ -7,6 +7,15 @@ import numpy as np
 import constants
 
 def sample_maxwell_boltzmann_distribution():
+    '''
+    Samples a velocity from the Maxwell-Boltzmann Distribution at some temperature T and some mass m.
+
+    Args:
+        None
+
+    Returns:
+        A single float velocity sampled from the probabilistic distribution.
+    '''
     return np.random.normal(0, np.sqrt(constants.k_b*constants.T/constants.m))
 
 if __name__ == '__main__':

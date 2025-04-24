@@ -16,14 +16,14 @@ def sample_maxwell_boltzmann_distribution():
     Returns:
         A single float velocity sampled from the probabilistic distribution.
     '''
-    return np.random.normal(0, np.sqrt(constants.k_b*constants.T/constants.m))
+    return abs(np.random.normal(0, np.sqrt(constants.k_b*constants.T/constants.m)))
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    count = 10000000
+    import matplotlib.pyplot as plt # gimme those plotting tools
+    count = 100000 # gonna do a histogram to make sure we have approximately guassian behavior. this is how many samples.
     samples = np.zeros(count)
     for i in range(count):
-        samples[i] = sample_maxwell_boltzmann_distribution()
-    print(sum(samples)/count)
+        samples[i] = sample_maxwell_boltzmann_distribution() # sample from distribution
+    print(sum(samples)/count) # give the mean - s/b stdnorm * sqrt(2)
     plt.hist(samples,bins=100)
     plt.show()

@@ -1,6 +1,9 @@
 k_b = 1 # set constants to 1 for easy simulation
 m = 1 # mass of particle
-T = 10 # Arbitrary Temp. units
+T = 273 # Arbitrary Temp. units
 dt = 0.001 # simulation timestep arbitrary units
-friction = 0.01 # simulation friction force
-steps = 10000 # number of simulation steps
+time = 4 # simulation time arbitrary units
+friction = 0.5 # simulation friction force
+a = 1 # quadratic constant of double well potential
+b = 1 # quartic constant of double well potential
+steps = time/dt # number of simulation steps

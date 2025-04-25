@@ -18,7 +18,7 @@ def sample_maxwell_boltzmann_distribution(std_dev:float=None):
     '''
     if std_dev == None:
         std_dev = np.sqrt(constants.k_b*constants.T/constants.m)
-    return abs(np.random.normal(0,std_dev))
+    return -abs(np.random.normal(0,std_dev))
 
 
 if __name__ == '__main__':

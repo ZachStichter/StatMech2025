@@ -61,7 +61,7 @@ velocity, friction, and force constants. Handles missing constants by using defa
 
          # Set up std deviation for thermal distribution
         try:
-            second_moment = constants.friction/(constants.T*constants.k_b)
+            second_moment = constants.friction*(constants.T*constants.k_b)
         except:
             second_moment = 0
             print('Cannot set a correct second moment of the correlation distribution. Defaulting to 0.')

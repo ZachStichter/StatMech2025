@@ -14,7 +14,7 @@ def calculate_tst_rate():
     k_tst = prefactor * np.exp(exponent)
     return k_tst
 
-def run_simulation_with_friction(friction_value, num_sims=10000, plot_results=False, eps=0.05):
+def run_simulation_with_friction(friction_value, num_sims=1000, plot_results=False, eps=0.05):
     '''
     Run Langevin simulations with a specific friction value and calculate classical rate
     '''
@@ -96,8 +96,8 @@ def run_part_e():
     print(f"Transition State Theory rate: k_TST = {k_tst:.6e}")
     
     # Array of friction values to test (logarithmic scale)
-    num_friction = 10
-    friction_values = np.logspace(-3,2,num_friction)  # From 0.01 to ~31.6
+    num_friction = 100
+    friction_values = np.linspace(0.001,10,num_friction)  # From 0.01 to ~31.6
     kappa_values = []
     k_cl_values = []
     
@@ -112,18 +112,23 @@ def run_part_e():
         kappa_values.append(kappa)
         
         print(f"  ξ = {friction:.4f}: k_cl = {k_cl:.6e}, κ = {kappa:.6f}")
+
+    smoothed_kappa = [sum(kappa_values[i:i+4])/4 for i in range(len(kappa_values)-4)]
+    corresponding_friction = [sum(friction_values[i:i+4])/4 for i in range(len(friction_values)-4)]
     
     # Plot results
     plt.figure(figsize=(10, 6))
-    plt.semilogx(friction_values, kappa_values, 'o-', markersize=2)
+    plt.plot(friction_values, kappa_values, 'o-', markersize=2, label='Scaling Coefficient')
+    plt.plot(corresponding_friction, smoothed_kappa,'-.', label='Two Period Moving Average')
     plt.xlabel('Friction (ξ)')
     plt.ylabel('Transmission Coefficient (κ)')
     plt.title('Transmission Coefficient vs. Friction')
     plt.grid(True, which="both", alpha=0.3)
-    plt.axhline(y=1.0, color='r', linestyle='--', alpha=0.5)  # Reference line at κ = 1
+    plt.axhline(y=1.0, color='r', linestyle='--', alpha=0.5, label='$k_{cl}=k_{TST}$')  # Reference line at κ = 1
+    plt.legend()
     plt.tight_layout()
     plt.savefig('transmission_coefficient.png')
-    plt.show()
+    #plt.show()
     
     # Save the data
     result_data = np.column_stack((friction_values, k_cl_values, kappa_values))

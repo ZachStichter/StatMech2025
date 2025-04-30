@@ -52,20 +52,24 @@ Methods:
     def __init__(self):
         self._set_initial_variables()
 
-    def _set_initial_variables(self):
-        '''
-Sets up the initial variables for the simulation, including thermal fluctuations, 
-velocity, friction, and force constants. Handles missing constants by using default values.
-        '''
-        self.trajectory = []
-
-         # Set up std deviation for thermal distribution
+    def set_friction(self,friction):
+        # Set up std deviation for thermal distribution
         try:
             second_moment = constants.friction*(constants.T*constants.k_b)
         except:
             second_moment = 0
             print('Cannot set a correct second moment of the correlation distribution. Defaulting to 0.')
         self.thermal_fluctuation_deviation = np.sqrt(second_moment)
+
+
+    def _set_initial_variables(self):
+        '''
+Sets up the initial variables for the simulation, including thermal fluctuations, 
+velocity, friction, and force constants. Handles missing constants by using default values.
+        '''
+        self.trajectory = []
+        self.set_friction(constants.friction)
+        
 
         # Set up std deviation for maxwell-boltzmann distribution
         try:
@@ -112,7 +116,7 @@ dV/dx = 2a(x+sqrt(a/b))
 Returns:
     float: The calculated force at the current position.
         '''
-        return (2*self.a)*(self.x+self.root_a_over_b)
+        return (2*self.a)*(self.x+self.root_a_over_b)**2
 
     def _sample_thermal_fluctuation(self):
         '''
@@ -156,6 +160,7 @@ Args:
     timestep (float): The time step for the simulation.
         '''
         self.x = self.x + self.velocity*timestep
+        self.x = min(abs(self.x),10*self.boltzmann_deviation)*np.sign(self.x)
 
     def simulate_langevin_motion(self, timestep:float=constants.dt, numsteps:int=constants.steps):
         '''

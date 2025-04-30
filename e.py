@@ -14,17 +14,18 @@ def calculate_tst_rate():
     k_tst = prefactor * np.exp(exponent)
     return k_tst
 
-def run_simulation_with_friction(friction_value, num_sims=200):
+def run_simulation_with_friction(friction_value, num_sims=10000, plot_results=False, eps=0.05):
     '''
     Run Langevin simulations with a specific friction value and calculate classical rate
     '''
     # Store trajectories and velocities
     all_trajectories = []
     initial_velocities = []
+    final_positions = []
     
     # Run simulations
     print(f"  Running {num_sims} simulations with friction ξ = {friction_value:.4f}")
-    for i in range(num_sims):
+    for _ in range(num_sims):
         # Create new simulation instance
         sim = LangevinSimulation()
         
@@ -38,38 +39,49 @@ def run_simulation_with_friction(friction_value, num_sims=200):
         # Store results
         all_trajectories.append(trajectory)
         initial_velocities.append(initial_vel)
+        final_positions.append(final_pos)
+
+    print("Accumulating Flux.")
+    velocity_weighted_sum = sum([initial_velocities[i]*int(final_positions[i]>0) for i in range(len(initial_velocities))])
+
+    k_cl = 2*abs(velocity_weighted_sum)/num_sims
     
-    # Calculate reactive flux correlation function
-    timesteps = len(all_trajectories[0])
-    reactive_flux = np.zeros(timesteps)
+    # # Calculate reactive flux correlation function
+    # timesteps = len(all_trajectories[0])
+    # reactive_flux = np.zeros(timesteps)
     
-    for t in range(timesteps):
-        weighted_sum = 0
-        for i in range(num_sims):
-            # Heaviside function: 1 if in product well (x > 0), 0 otherwise
-            h_product = 1 if all_trajectories[i][t] > 0 else 0
-            # Weight by initial velocity (negative values)
-            weighted_sum += initial_velocities[i] * h_product
+    # for t in range(timesteps):
+    #     weighted_sum = 0
+    #     for i in range(num_sims):
+    #         # Heaviside function: 1 if in product well (x > 0), 0 otherwise
+    #         h_product = 1 if all_trajectories[i][t] > 0 else 0
+    #         # Weight by initial velocity (negative values)
+    #         weighted_sum += initial_velocities[i] * h_product
         
-        # Normalize by number of simulations and xR (approximated as 0.5 for symmetric wells)
-        # The negative sign is because initial velocities are negative and we want positive rate
-        reactive_flux[t] = -weighted_sum / (num_sims * 0.5)
+    #     # Normalize by number of simulations and xR (approximated as 0.5 for symmetric wells)
+    #     # The negative sign is because initial velocities are negative and we want positive rate
+    #     reactive_flux[t] = -weighted_sum / (num_sims * 0.5)
     
-    # Find plateau value (average of last 20% of data)
-    plateau_start = int(0.8 * timesteps)
-    k_cl = np.mean(reactive_flux[plateau_start:])
+    # # Find plateau value (average of last 20% of data)
+    # i = int(0.8 * timesteps)
+    # while reactive_flux[i]+eps*max(reactive_flux) < max(reactive_flux) and i < timesteps:
+    #     i += 1
+    # plateau_start = i
+    # if i > 0.95*timesteps:
+    #     print(f'Bad reactive flux calculation at friction {friction_value}. Extend simulation time')
+    # k_cl = np.mean(reactive_flux[plateau_start:])
     
-    # Optional: Plot the reactive flux to verify plateau behavior
-    if friction_value in [0.1, 1.0, 10.0]:  # Plot for selected friction values
-        plt.figure(figsize=(8, 5))
-        plt.plot(np.linspace(0, constants.time, timesteps), reactive_flux)
-        plt.axhline(y=k_cl, color='r', linestyle='--')
-        plt.xlabel('Time (au)')
-        plt.ylabel('Reactive Flux')
-        plt.title(f'Reactive Flux for Friction ξ = {friction_value:.2f}')
-        plt.grid(True, alpha=0.3)
-        plt.savefig(f'reactive_flux_friction_{friction_value:.1f}.png')
-        plt.close()
+    # # Optional: Plot the reactive flux to verify plateau behavior
+    # if plot_results:  # Plot for selected friction values
+    #     plt.figure(figsize=(8, 5))
+    #     plt.plot(np.linspace(0, constants.time, timesteps), reactive_flux)
+    #     plt.axhline(y=k_cl, color='r', linestyle='--')
+    #     plt.xlabel('Time (au)')
+    #     plt.ylabel('Reactive Flux')
+    #     plt.title(f'Reactive Flux for Friction ξ = {friction_value:.2f}')
+    #     plt.grid(True, alpha=0.3)
+    #     plt.savefig(f'reactive_flux_friction_{friction_value:.1f}.png')
+    #     plt.close()
     
     return k_cl
 
@@ -84,13 +96,15 @@ def run_part_e():
     print(f"Transition State Theory rate: k_TST = {k_tst:.6e}")
     
     # Array of friction values to test (logarithmic scale)
-    friction_values = np.logspace(-2, 1.5, 10)  # From 0.01 to ~31.6
+    num_friction = 10
+    friction_values = np.logspace(-3,2,num_friction)  # From 0.01 to ~31.6
     kappa_values = []
     k_cl_values = []
     
     # Run simulations for each friction value
-    for friction in friction_values:
-        k_cl = run_simulation_with_friction(friction)
+    for idx, friction in enumerate(friction_values):
+        plot = (idx in [0, num_friction//2, num_friction])
+        k_cl = run_simulation_with_friction(friction,plot_results=plot)
         k_cl_values.append(k_cl)
         
         # Calculate transmission coefficient
@@ -101,7 +115,7 @@ def run_part_e():
     
     # Plot results
     plt.figure(figsize=(10, 6))
-    plt.semilogx(friction_values, kappa_values, 'o-', markersize=8)
+    plt.semilogx(friction_values, kappa_values, 'o-', markersize=2)
     plt.xlabel('Friction (ξ)')
     plt.ylabel('Transmission Coefficient (κ)')
     plt.title('Transmission Coefficient vs. Friction')

@@ -28,14 +28,9 @@ def run_simulation_with_friction(friction_value, num_sims=200):
         # Create new simulation instance
         sim = LangevinSimulation()
         
-        # Apply fixes
-        # 1. Set custom friction
+        # Set custom friction
         sim.friction = friction_value
-        # 2. Fix thermal fluctuation calculation (fluctuation-dissipation theorem)
-        sim.thermal_fluctuation_deviation = np.sqrt(friction_value * constants.k_b * constants.T)
-        # 3. Ensure initial velocity is negative (toward reactant well x < 0)
-        sim.velocity = -abs(sim.velocity)
-        sim.initial_velocity = sim.velocity
+
         
         # Run simulation
         final_pos, trajectory, initial_vel = sim.simulate_langevin_motion()
